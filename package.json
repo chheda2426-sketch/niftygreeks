@@ -13,7 +13,7 @@
     "react": "^18",
     "react-dom": "^18",
     "@supabase/supabase-js": "^2.43.4",
-    "@supabase/ssr": "^0.3.0",
+    "@supabase/ssr": "^0.4.0",
     "razorpay": "^2.9.2",
     "recharts": "^2.12.7",
     "lucide-react": "^0.383.0",
