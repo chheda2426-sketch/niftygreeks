@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { UserProfile, Position, Scenario, PLAN_LIMITS } from "../../types";
+import { UserProfile, Position, Scenario, PLAN_LIMITS } from "../types";
 
 // ── Black-Scholes ─────────────────────────────────────────────────────────────
 function ncdf(x: number) {
