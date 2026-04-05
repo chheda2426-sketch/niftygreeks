@@ -1,23 +1,18 @@
-import { NextResponse } from "next/server";
-import { createClient } from "../../../lib/supabase";
+import { createClient } from '@supabase/supabase-js'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  const origin = requestUrl.origin
 
   if (code) {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error && data.user) {
-      await supabase.from("profiles").upsert({
-        id: data.user.id,
-        email: data.user.email,
-        full_name: data.user.user_metadata?.full_name ?? null,
-        plan: "free",
-      }, { onConflict: "id", ignoreDuplicates: true });
-      return NextResponse.redirect(${origin}${next});
-    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    await supabase.auth.exchangeCodeForSession(code)
   }
-  return NextResponse.redirect(${origin}/login?error=auth_failed);
+
+  return NextResponse.redirect(${origin}/dashboard)
 }
