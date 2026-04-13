@@ -1,22 +1,38 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from '@supabase/ssr'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  const response = NextResponse.next()
+  const path = request.nextUrl.pathname
 
-  const authCookie = request.cookies.get("sb-gbzowdtooixiheolskpu-auth-token");
-  const isLoggedIn = !!authCookie;
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
 
-  if (path.startsWith("/dashboard") && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (path.startsWith('/dashboard') && !user) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if ((path === "/login" || path === "/signup") && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if ((path === '/login' || path === '/signup') && user) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  return NextResponse.next();
+  return response
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup"],
-};
+  matcher: ['/dashboard/:path*', '/login', '/signup'],
+}
